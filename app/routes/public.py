@@ -32,3 +32,12 @@ def product_detail(product_id):
 @public_bp.route("/contact")
 def contact():
     return render_template("contact.html")
+
+@public_bp.route("/ayuda")
+def ayuda():
+    return render_template("ayuda.html")
+
+@public_bp.route("/informacion de la pagina")
+def informacion():
+    return render_template("informacion.html")
+

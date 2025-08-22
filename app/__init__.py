@@ -61,7 +61,8 @@ def seed_data():
             Product(name="Zapatilla Urbana", description="Cómoda para el día a día",
                     price=199000, stock=35, category_id=categories[1].id),
             Product(name="Zapatilla Dunk Shot", description="Estilo basketball clásico",
-                    price=259000, stock=15, category_id=categories[2].id),
+                    price=259000, stock=15, category_id=categories[2].id,),
+                     
         ]
         db.session.add_all(sample_products)
     db.session.commit()

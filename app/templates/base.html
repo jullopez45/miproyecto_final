@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -20,19 +19,30 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('public.catalog') }}">Catálogo</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('cart.view_cart') }}">Carrito</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('public.contact') }}">Contacto</a></li>
-        {% if current_user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.profile') }}">Perfil</a></li>
-          {% if current_user.is_admin() %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin</a></li>
-          {% endif %}
-        {% endif %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('public.ayuda') }}">Ayuda</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('public.informacion') }}">Informacion de la pagina</a></li>
       </ul>
+
       <ul class="navbar-nav">
         {% if current_user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Salir</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.profile') }}">Perfil</a>
+          </li>
+          {% if current_user.is_admin() %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">Salir</a>
+          </li>
         {% else %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Entrar</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.register') }}">Registrarse</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#authModal">Entrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#authModal">Registrarse</a>
+          </li>
         {% endif %}
       </ul>
     </div>
@@ -52,13 +62,55 @@
   {% endwith %}
   {% block content %}{% endblock %}
 </main>
-
 <footer class="bg-dark text-white py-3">
   <div class="container">
-    © {{ 2025 }} Tienda Zapatillas
+    © {{ 2025 }} Tienda Zapatillas. Todos los derechos reservados.
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Login/Register Modal -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4 rounded-3 shadow">
+      <div class="modal-header border-0 pb-0">
+        <ul class="nav nav-tabs w-100" id="authTabs">
+          <li class="nav-item flex-fill text-center">
+            <a class="nav-link active" id="login-tab" data-bs-toggle="tab" href="#login-form">Iniciar Sesión</a>
+          </li>
+          <li class="nav-item flex-fill text-center">
+            <a class="nav-link" id="register-tab" data-bs-toggle="tab" href="#register-form">Registrarse</a>
+          </li>
+        </ul>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="tab-content">
+          <!-- Login Form -->
+          <div class="tab-pane fade show active" id="login-form">
+            <h5 class="mb-3">Iniciar Sesión</h5>
+            <form method="POST" action="{{ url_for('auth.login') }}">
+              <input type="email" name="email" class="form-control mb-3" placeholder="Correo electrónico" required>
+              <input type="password" name="password" class="form-control mb-3" placeholder="Contraseña" required>
+              <button type="submit" class="btn btn-dark w-100">Entrar</button>
+            </form>
+          </div>
+          <!-- Register Form -->
+          <div class="tab-pane fade" id="register-form">
+            <h5 class="mb-3">Crear Cuenta</h5>
+            <form method="POST" action="{{ url_for('auth.register') }}">
+              <input type="text" name="name" class="form-control mb-3" placeholder="Nombre completo" required>
+              <input type="email" name="email" class="form-control mb-3" placeholder="Correo electrónico" required>
+              <input type="password" name="password" class="form-control mb-3" placeholder="Contraseña" required>
+              <button type="submit" class="btn btn-dark w-100">Registrarse</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
