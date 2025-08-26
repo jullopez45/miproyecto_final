@@ -5,46 +5,59 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center mb-4">Catálogo de Productos</h1>
-
     <div class="row">
+        {% for product in products %}
         <!-- Producto 1 -->
+        
         <div class="col-md-4">
             <div class="card mb-4 shadow-sm">
-                <img src="{{ url_for('static', filename='img/zapatilla1.jpg') }}" class="card-img-top" alt="Zapatilla 1">
+                <img src="{{ product.image_url or url_for('static', filename='img/default.jpg') }}" class="card-img-top" alt="{{ product.name }}">
                 <div class="card-body">
-                    <h5 class="card-title">Zapatilla Nike Air</h5>
-                    <p class="card-text">Comodidad y estilo en un solo diseño.</p>
-                    <p class="card-text"><strong>$120.000</strong></p>
-                    <a href="#" class="btn btn-primary">Agregar al carrito</a>
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text"><strong>${{ product.price }}</strong></p>
+                    <form method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                        <input type="hidden" name="qty" value="1">
+                        <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+                    </form>
                 </div>
             </div>
         </div>
 
         <!-- Producto 2 -->
-        <div class="col-md-4">
+       <div class="col-md-4">
             <div class="card mb-4 shadow-sm">
-                <img src="{{ url_for('static', filename='img/zapatilla2.jpg') }}" class="card-img-top" alt="Zapatilla 2">
+                <img src="{{ product.image_url or url_for('static', filename='img/default.jpg') }}" class="card-img-top" alt="{{ product.name }}">
                 <div class="card-body">
-                    <h5 class="card-title">Adidas Superstar</h5>
-                    <p class="card-text">El clásico que nunca pasa de moda.</p>
-                    <p class="card-text"><strong>$150.000</strong></p>
-                    <a href="#" class="btn btn-primary">Agregar al carrito</a>
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text"><strong>${{ product.price }}</strong></p>
+                    <form method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                        <input type="hidden" name="qty" value="1">
+                        <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+                    </form>
                 </div>
             </div>
         </div>
 
         <!-- Producto 3 -->
-        <div class="col-md-4">
+       <div class="col-md-4">
             <div class="card mb-4 shadow-sm">
-                <img src="{{ url_for('static', filename='img/zapatilla3.jpg') }}" class="card-img-top" alt="Zapatilla 3">
+                <img src="{{ product.image_url or url_for('static', filename='img/default.jpg') }}" class="card-img-top" alt="{{ product.name }}">
                 <div class="card-body">
-                    <h5 class="card-title">Puma RS-X</h5>
-                    <p class="card-text">Diseño moderno y versátil.</p>
-                    <p class="card-text"><strong>$130.000</strong></p>
-                    <a href="#" class="btn btn-primary">Agregar al carrito</a>
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text"><strong>${{ product.price }}</strong></p>
+                    <form method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                        <input type="hidden" name="qty" value="1">
+                        <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+                    </form>
                 </div>
             </div>
         </div>
+
+        
+         {% endfor %}
     </div>
 </div>
 {% endblock %}
