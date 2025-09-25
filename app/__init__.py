@@ -2,27 +2,44 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail
 from .models import db
 
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
+mail = Mail()  # <--- la instancia de mail
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object("config.Config")
+    app.config['SECRET_KEY'] = 'supersecretkey'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/tienda_zapatillas'
 
+    # Configuración de correo (ejemplo con Gmail)
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_USE_TLS"] = True
+    app.config["MAIL_USERNAME"] = "tunombre@gmail.com"
+    app.config["MAIL_PASSWORD"] = "miclave123"  # usa password de aplicación
+
+    # Inicializar extensiones
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    mail.init_app(app)
 
+    # Rutas extra (profile)
+    from .routes.profile import profile_bp
+    app.register_blueprint(profile_bp)
+
+    # Importar modelos
     from .models import User
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # Blueprints
+    # Blueprints principales
     from .routes.auth import auth_bp
     from .routes.public import public_bp
     from .routes.cart import cart_bp
@@ -35,6 +52,7 @@ def create_app():
     app.register_blueprint(orders_bp, url_prefix="/orders")
     app.register_blueprint(admin_bp, url_prefix="/admin")
 
+    # Crear tablas y datos iniciales
     with app.app_context():
         db.create_all()
         seed_data()
@@ -42,6 +60,9 @@ def create_app():
     return app
 
 
+# -------------------
+# Función seed_data
+# -------------------
 def seed_data():
     from .models import User, Category, Product, db
 
@@ -59,12 +80,12 @@ def seed_data():
     # Crear categorías si no existen
     if Category.query.count() == 0:
         cats = [
-            "Botas de fútbol para césped artificial",
-            "Botas de fútbol para césped natural.",
-            "Botas de fútbol multitacos.",
-            "Botas de fútbol AG (AG – Artificial Grass)",
-            "Botas de fútbol Turf (TF – Turf)",
-            "Botas de fútbol de aluminio (SG – Soft Ground)"
+            "Zapatillas para césped artificial",
+            "Zapatillas para césped natural.",
+            "Zapatillas de fútbol multitacos.",
+            "Zapatillas de futbol de toque",
+            "Zapatillas de futbol de potencia",
+            "Zapatillas de futbol clasicas"
         ]
         categories = [Category(name=c) for c in cats]
         db.session.add_all(categories)
@@ -72,11 +93,12 @@ def seed_data():
     else:
         categories = Category.query.order_by(Category.id).all()
 
-    # Borrar productos existentes antes de insertar nuevos
-    Product.query.delete()
-    db.session.commit()
+    # Normalizador de nombres
+    def normalize_name(name):
+        return name.strip().lower()
 
-    # Productos de ejemplo
+    existing_names = {normalize_name(p.name) for p in Product.query.all()}
+
     sample_products = [
         Product(
             name="New Balance Furon 4.0 Pro FG",
@@ -111,38 +133,49 @@ def seed_data():
             image_url="https://www.futbolemotion.com/imagesarticulos/248158/540/bota-adidas-predator-league-turf-nino-core-black-grey-four-lucid-red-0.jpg"
         ),
         Product(
-            name="Nike Phantom 6 High Academy FG/MG.",
-            description="Incorpora una textura adherente, especialmente en la zona de golpeo, para mejorar el contacto y la precisión al golpear el balón.",
-            price=350000,
+            name="Zapatilla nike zoom vapor 16 academy FG/MG",
+            description="NikeSkin con chevrones incrustados para un mejor control del balón.",
+            price=102990,
             stock=8,
             category_id=categories[4].id,
-            image_url="https://www.futbolemotion.com/imagesarticulos/268899/750/bota-nike-phantom-6-high-akademie-fg-mg-azul-electrico-0.webp"
+            image_url="https://www.futbolemotion.com/imagesarticulos/259751/750/bota-nike-zm-vapor-16-pro-fg-verde-0.webp"
         ),
         Product(
-            name="Nike Phantom 6 High Academy FG/MG.",
-            description="Incorpora una textura adherente, especialmente en la zona de golpeo, para mejorar el contacto y la precisión al golpear el balón.",
-            price=350000,
+            name="Nike Air Zoom Mercurial Superfly IX Elite FG",
+            description="Un material suave y flexible unido por un revestimiento fino, que envuelve el pie para un contacto más natural con el balón., para mejorar el contacto y la precisión al golpear el balón.",
+            price=250000,
             stock=8,
             category_id=categories[4].id,
-            image_url="https://www.futbolemotion.com/imagesarticulos/268899/750/bota-nike-phantom-6-high-akademie-fg-mg-azul-electrico-0.webp"
+            image_url="https://i.pinimg.com/736x/4f/b8/8d/4fb88dbdc92acafd5f584196e8c2aee0.jpg"
         ),
         Product(
-            name="Nike Phantom 6 High Academy FG/MG.",
-            description="Incorpora una textura adherente, especialmente en la zona de golpeo, para mejorar el contacto y la precisión al golpear el balón.",
-            price=350000,
+            name="2025 Football Shoes Men Soccer Shoes Long Spikes Soccer",
+            description="Diseñada para entrenamiento profesional y atletas que buscan máximo rendimiento.",
+            price=250000,
             stock=8,
             category_id=categories[4].id,
-            image_url="https://www.futbolemotion.com/imagesarticulos/268899/750/bota-nike-phantom-6-high-akademie-fg-mg-azul-electrico-0.webp"
+            image_url="https://http2.mlstatic.com/D_NQ_NP_2X_715249-MCO89897322532_082025-F.webp"
         ),
         Product(
-            name="Nike Phantom 6 High Academy FG/MG.",
-            description="Incorpora una textura adherente, especialmente en la zona de golpeo, para mejorar el contacto y la precisión al golpear el balón.",
-            price=350000,
+            name="Nike Zoom Mercurial Superfly 9 Elite FG",
+            description="Incorpora una unidad Zoom Air articulada en la suela, que se extiende a lo largo de tres cuartas partes del zapato, proporcionando amortiguación y propulsión en cada pisada",
+            price=250000,
             stock=8,
             category_id=categories[4].id,
-            image_url="https://www.futbolemotion.com/imagesarticulos/268899/750/bota-nike-phantom-6-high-akademie-fg-mg-azul-electrico-0.webp"
+            image_url="https://images.prodirectsport.com/ProductImages/Main/1001459_Main_Thumb_1644581.jpg"
         ),
+        Product(
+            name="Nike Phantom Luna II LV8 Elite FG Vortex Pack - Green Glow/Black",
+            description="La parte superior está hecha con Vaporposite+, una combinación de malla de rejilla con agarre y un material premium para un control óptimo del balón a altas velocidades",
+            price=329000,
+            stock=8,
+            category_id=categories[4].id,
+            image_url="https://www.ypsoccer.net/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/n/i/nike-phantom-luna-ii-elite-fg-vortex-pack-green-glow-black-1.jpg"
+        )
     ]
 
-    db.session.add_all(sample_products)
-    db.session.commit()
+    # Solo agrega productos que no existan por nombre normalizado
+    to_add = [p for p in sample_products if normalize_name(p.name) not in existing_names]
+    if to_add:
+        db.session.add_all(to_add)
+        db.session.commit()

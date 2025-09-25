@@ -13,7 +13,7 @@
     <td>{{ it.product.name }}</td>
     <td>
       <form class="d-flex gap-2" method="post" action="{{ url_for('cart.update_cart', product_id=it.product.id) }}">
-        <input class="form-control" style="max-width:90px" type="number" name="qty" value="{{ it.qty }}" min="0">
+        <input class="form-control" style="max-width:90px" type="number" name="qty" value="{{ it.qty }}" min="1">
         <button class="btn btn-outline-secondary" type="submit">Actualizar</button>
       </form>
     </td>

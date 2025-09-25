@@ -20,7 +20,7 @@ def catalog():
     if q:
         like = f"%{q.lower()}%"
         query = query.filter(db.func.lower(Product.name).like(like))
-    products = query.order_by(Product.id.desc()).all()
+    products = query.order_by(Product.id.desc()).limit(8).all()
     categories = Category.query.all()
     return render_template("catalog.html", products=products, categories=categories, selected_category=category_id, q=q)
 
