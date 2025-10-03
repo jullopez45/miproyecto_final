@@ -1,12 +1,35 @@
+version: "3.8"
+
 services:
   web:
-    image: python:3.13-alpine
     build: 
-      context: . #"https://github.com/miuguelt/HolaDocker.git"
+      context: .
       dockerfile: Dockerfile
+    container_name: flask_app
     ports:
-      - 5000:5000
+      - "5000:5000"
     volumes:
       - .:/app
     environment:
-      - APP_NAME=$APP_NAME
+      - DATABASE_URL=mysql+pymysql://juliana:julianac:3306/f58_juliana
+      - SECRET_KEY=clave_super_secreta
+      - APP_NAME=mi_app
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: nombre_base
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: contraseña
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
